@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 March Madness Bracket Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080f; --surface: #0e1220; --surface2: #141926;
+  --border: #1d2535; --border2: #252f42;
+  --text: #e8eef8; --muted: #6272a0; --dim: #334060;
+  --orange: #f97316; --orange2: #fb923c; --gold: #fbbf24;
+  --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --purple: #a855f7;
+  --east: #f97316; --south: #22c55e; --west: #3b82f6; --midwest: #a855f7;
+  --display: 'Bebas Neue', sans-serif; --mono: 'DM Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 12px; min-height: 100vh; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,165,0,.018) 39px, rgba(255,165,0,.018) 40px),
+              repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,165,0,.018) 39px, rgba(255,165,0,.018) 40px);
+}
+#app { position:relative; z-index:1; }
+
+/* HEADER */
+header {
+  padding: 0 28px; height: 60px; display:flex; align-items:center; gap:14px;
+  border-bottom: 1px solid var(--border); background: rgba(6,8,15,.96);
+  backdrop-filter: blur(12px); position: sticky; top:0; z-index:200;
+}
+.logo { font-family:var(--display); font-size:26px; letter-spacing:.06em; }
+.logo span { color:var(--orange); }
+.hdr-right { margin-left:auto; display:flex; gap:8px; align-items:center; }
+.btn { padding:6px 14px; border-radius:7px; font-family:var(--display); font-size:13px; letter-spacing:.08em; cursor:pointer; border:none; transition:all .15s; }
+.btn-primary { background:linear-gradient(135deg,#c2410c,#f97316); color:#fff; box-shadow:0 2px 12px rgba(249,115,22,.3); }
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(249,115,22,.45); }
+.btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); font-size:11px; padding:5px 12px; }
+.btn-ghost:hover { color:var(--text); border-color:var(--muted); }
+.btn-ghost.active { color:var(--text); border-color:var(--orange); background:rgba(249,115,22,.07); }
+
+/* MAIN */
+.main { max-width:1200px; margin:0 auto; padding:20px 16px 80px; }
+
+/* VIEW TABS */
+.vtabs { display:flex; gap:3px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; width:fit-content; margin-bottom:18px; }
+.vtab { padding:7px 18px; background:transparent; border:none; color:var(--muted); font-family:var(--display); font-size:14px; letter-spacing:.1em; cursor:pointer; border-radius:7px; transition:all .2s; }
+.vtab.active { background:var(--border2); color:var(--text); }
+.vtab:hover:not(.active) { color:var(--text); }
+
+/* REGION SECTION */
+.region-section { margin-bottom:32px; }
+.region-header {
+  display:flex; align-items:center; gap:12px; margin-bottom:14px;
+  padding:12px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface);
+}
+.region-title { font-family:var(--display); font-size:22px; letter-spacing:.1em; }
+.region-title.east { color:var(--east); }
+.region-title.south { color:var(--south); }
+.region-title.west { color:var(--west); }
+.region-title.midwest { color:var(--midwest); }
+.region-meta { font-size:10px; color:var(--muted); line-height:1.7; }
+.region-verdict { margin-left:auto; text-align:right; }
+.region-verdict-title { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.region-winner { font-family:var(--display); font-size:20px; color:var(--gold); }
+
+/* MATCHUP CARD */
+.matchup-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  overflow:hidden; margin-bottom:10px; position:relative; transition:border-color .2s;
+}
+.matchup-card:hover { border-color:var(--border2); }
+.matchup-card.upset-alert { border-color:rgba(239,68,68,.3); }
+.matchup-card.upset-alert::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#ef4444,transparent); }
+.matchup-card.watch-game { border-color:rgba(251,191,36,.25); }
+.matchup-card.watch-game::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--gold),transparent); }
+
+.matchup-inner { display:grid; grid-template-columns:1fr auto 1fr; gap:0; }
+
+/* TEAM SIDE */
+.team-side {
+  padding:14px 16px; cursor:pointer; transition:background .15s; position:relative;
+}
+.team-side:hover { background:rgba(255,255,255,.025); }
+.team-side.picked { background:rgba(249,115,22,.07); }
+.team-side.picked-underdog { background:rgba(239,68,68,.07); }
+.team-side.losing { opacity:.55; }
+
+.team-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.seed-num { font-family:var(--display); font-size:18px; min-width:22px; text-align:center; }
+.s1 { color:#fbbf24; } .s2 { color:#fb923c; } .s3 { color:#f97316; }
+.s4 { color:#a3e635; } .s5 { color:#86efac; } .s6 { color:#67e8f9; }
+.s7 { color:#93c5fd; } .s8 { color:#818cf8; } .s9 { color:#c4b5fd; }
+.s10 { color:#f9a8d4; } .s11,.s12 { color:var(--muted); }
+.s13,.s14,.s15,.s16 { color:var(--dim); }
+
+.team-name-big { font-family:var(--display); font-size:20px; letter-spacing:.04em; line-height:1; }
+.team-conf { font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+.team-record { font-size:10px; color:var(--dim); }
+
+.win-pct-row { display:flex; align-items:center; gap:8px; margin-top:8px; }
+.win-pct-num { font-family:var(--display); font-size:28px; line-height:1; }
+.win-pct-num.fav { color:var(--orange2); }
+.win-pct-num.dog { color:#93c5fd; }
+.win-pct-lbl { font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+
+.proj-badge {
+  display:inline-flex; align-items:center; gap:4px; margin-top:6px;
+  font-size:9px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  padding:3px 8px; border-radius:5px;
+}
+.proj-win { background:rgba(249,115,22,.1); color:var(--orange2); border:1px solid rgba(249,115,22,.3); }
+.proj-upset-win { background:rgba(239,68,68,.1); color:#fca5a5; border:1px solid rgba(239,68,68,.3); }
+.proj-lose { background:rgba(51,64,96,.15); color:var(--dim); border:1px solid var(--border); }
+
+/* MIDDLE DIVIDER */
+.matchup-mid {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:10px 6px; border-left:1px solid var(--border); border-right:1px solid var(--border);
+  min-width:80px; background:var(--surface2); gap:5px;
+}
+.mid-vs { font-family:var(--display); font-size:14px; color:var(--dim); }
+.prob-bar-vert { width:8px; height:80px; background:var(--border); border-radius:4px; overflow:hidden; display:flex; flex-direction:column; }
+.pb-top { background:var(--orange2); transition:flex .7s ease; border-radius:4px 4px 0 0; }
+.pb-bot { background:#60a5fa; transition:flex .7s ease; border-radius:0 0 4px 4px; }
+.mid-round { font-size:8px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); writing-mode:vertical-rl; text-orientation:mixed; }
+
+/* ANALYSIS PANEL */
+.analysis-panel {
+  border-top:1px solid var(--border); padding:12px 16px;
+  background:var(--surface2);
+}
+.analysis-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+.analysis-stat { }
+.as-label { font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); margin-bottom:2px; }
+.as-value { font-size:11px; color:var(--muted); }
+.as-value.highlight { color:var(--text); }
+.as-value.green { color:var(--green); }
+.as-value.red { color:var(--red); }
+.as-value.gold { color:var(--gold); }
+
+.scout-note {
+  font-size:11px; color:#7a8fb8; line-height:1.7; font-style:italic;
+  border-left:2px solid var(--border2); padding-left:10px; margin-top:8px;
+}
+.upset-alert-box {
+  display:flex; align-items:flex-start; gap:8px; margin-top:10px;
+  background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.2);
+  border-radius:8px; padding:10px 12px;
+}
+.upset-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+.upset-text { font-size:11px; color:#fca5a5; line-height:1.7; }
+.upset-text strong { color:var(--red); }
+
+/* PICK BUTTONS */
+.pick-row { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+.pick-btn {
+  flex:1; min-width:100px; padding:8px 10px; border-radius:8px;
+  background:var(--bg); border:1px solid var(--border2); color:var(--muted);
+  font-family:var(--display); font-size:14px; letter-spacing:.05em; cursor:pointer;
+  transition:all .2s; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.pick-btn:hover { border-color:var(--orange); color:var(--orange2); background:rgba(249,115,22,.06); }
+.pick-btn.picked { border-color:var(--orange); color:var(--orange2); background:rgba(249,115,22,.1); }
+.pick-btn.picked-upset { border-color:var(--red); color:#fca5a5; background:rgba(239,68,68,.1); }
+.pick-btn.model-rec { }
+.model-star { font-size:9px; vertical-align:super; color:var(--gold); margin-left:2px; }
+
+/* UPSET HISTORY BAR */
+.seed-history { margin-top:8px; }
+.sh-label { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-bottom:4px; display:flex; justify-content:space-between; }
+.sh-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+.sh-fill { height:100%; border-radius:3px; }
+
+/* TABS within view */
+.round-tabs { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:16px; }
+.rtab { padding:5px 14px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); font-family:var(--display); font-size:12px; letter-spacing:.08em; cursor:pointer; border-radius:6px; transition:all .2s; }
+.rtab.active { background:var(--border2); color:var(--text); border-color:var(--border2); }
+
+/* SUMMARY */
+.summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.sum-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+.sum-title { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+.sum-big { font-family:var(--display); font-size:38px; line-height:1; }
+.sum-sub { font-size:10px; color:var(--muted); margin-top:4px; }
+.picks-table { width:100%; border-collapse:collapse; }
+.picks-table th { font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+.picks-table td { padding:8px 12px; border-bottom:1px solid var(--border); font-size:11px; }
+.picks-table tr:last-child td { border-bottom:none; }
+.picks-table tr:hover td { background:rgba(255,255,255,.015); }
+.rb { display:inline-block; font-size:8px; letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border-radius:8px; }
+.rb-r64 { background:rgba(249,115,22,.08); color:var(--orange2); border:1px solid rgba(249,115,22,.2); }
+.rb-r32 { background:rgba(251,191,36,.08); color:var(--gold); border:1px solid rgba(251,191,36,.2); }
+.rb-s16 { background:rgba(34,197,94,.08); color:var(--green); border:1px solid rgba(34,197,94,.2); }
+.rb-e8 { background:rgba(59,130,246,.08); color:#93c5fd; border:1px solid rgba(59,130,246,.2); }
+.rb-ff { background:rgba(168,85,247,.08); color:#d8b4fe; border:1px solid rgba(168,85,247,.2); }
+.rb-champ { background:rgba(251,191,36,.15); color:var(--gold); border:1px solid rgba(251,191,36,.35); }
+.upset-pill { font-size:8px; background:rgba(239,68,68,.1); color:#fca5a5; border:1px solid rgba(239,68,68,.25); padding:1px 6px; border-radius:4px; margin-left:5px; }
+
+/* VIEWS */
+.view { display:none; } .view.active { display:block; }
+
+/* FINAL FOUR */
+.ff-section { margin-bottom:32px; }
+.ff-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.ff-card {
+  background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:16px 18px;
+}
+.ff-card-title { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.ff-team-row {
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px;
+  background:var(--surface2); border:1px solid var(--border); cursor:pointer; margin-bottom:6px;
+  transition:all .2s;
+}
+.ff-team-row:hover { border-color:var(--orange); background:rgba(249,115,22,.05); }
+.ff-team-row.picked { border-color:var(--gold); background:rgba(251,191,36,.07); }
+.ff-team-name { font-family:var(--display); font-size:18px; }
+.ff-team-seed { font-size:10px; color:var(--muted); }
+.ff-team-prob { margin-left:auto; font-family:var(--display); font-size:16px; color:var(--muted); }
+.ff-tbd { font-size:11px; color:var(--dim); font-style:italic; padding:8px 0; }
+
+/* CHAMP */
+.champ-card {
+  background:linear-gradient(135deg,var(--surface),#0d1526); border:1px solid rgba(251,191,36,.3);
+  border-radius:16px; padding:24px; text-align:center; margin-bottom:20px;
+}
+.champ-trophy { font-size:40px; margin-bottom:8px; }
+.champ-label { font-size:8px; letter-spacing:.25em; text-transform:uppercase; color:var(--muted); }
+.champ-name { font-family:var(--display); font-size:48px; color:var(--gold); line-height:1; margin:8px 0; }
+.champ-detail { font-size:11px; color:var(--muted); }
+
+@media(max-width:800px) {
+  .matchup-inner { grid-template-columns:1fr; }
+  .matchup-mid { flex-direction:row; border:none; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:6px 14px; min-width:auto; }
+  .prob-bar-vert { width:80px; height:8px; flex-direction:row; }
+  .mid-round { writing-mode:horizontal-tb; }
+  .summary-grid { grid-template-columns:1fr 1fr; }
+  .analysis-grid { grid-template-columns:1fr 1fr; }
+  .ff-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <div>
+    <div class="logo">BRACKET<span>.</span>EDGE <span style="font-size:13px;color:var(--muted);letter-spacing:.05em">2026 PICK GUIDE</span></div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-ghost active" id="vtab-guide" onclick="showView('guide')">📋 Pick Guide</button>
+    <button class="btn btn-ghost" id="vtab-ff" onclick="showView('ff')">🏆 Final Four</button>
+    <button class="btn btn-ghost" id="vtab-summary" onclick="showView('summary')">📊 My Picks</button>
+    <button class="btn btn-primary" onclick="autoPickAll()">⚡ AI Auto-Fill</button>
+  </div>
+</header>
+
+<div class="main">
+
+<!-- GUIDE VIEW -->
+<div class="view active" id="view-guide">
+  <div class="round-tabs" id="roundTabs">
+    <button class="rtab active" onclick="filterRound('r64',this)">First Round (R64)</button>
+    <button class="rtab" onclick="filterRound('r32',this)">Round of 32</button>
+    <button class="rtab" onclick="filterRound('s16',this)">Sweet 16</button>
+    <button class="rtab" onclick="filterRound('e8',this)">Elite Eight</button>
+  </div>
+  <div id="matchupContainer"></div>
+</div>
+
+<!-- FINAL FOUR VIEW -->
+<div class="view" id="view-ff">
+  <div class="ff-section">
+    <div class="ff-grid" id="ffGrid"></div>
+  </div>
+  <div class="champ-card" id="champCard">
+    <div class="champ-trophy">🏆</div>
+    <div class="champ-label">2026 National Champion</div>
+    <div class="champ-name" id="champName">Pick your Final Four</div>
+    <div class="champ-detail" id="champDetail">Fill out the bracket to unlock the championship game</div>
+  </div>
+</div>
+
+<!-- SUMMARY VIEW -->
+<div class="view" id="view-summary">
+  <div class="summary-grid" id="summaryCards"></div>
+  <div class="sum-card">
+    <div class="sum-title" style="margin-bottom:14px">All Picks — Round by Round</div>
+    <table class="picks-table">
+      <thead><tr><th>Round</th><th>Winner (Your Pick)</th><th>Defeated</th><th>Win Prob</th><th>Type</th></tr></thead>
+      <tbody id="picksBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════════════════════
+// MATH & MODEL
+// ════════════════════════════════════════════════
+function normalCDF(z){var t=1/(1+.2316419*Math.abs(z)),d=.3989423*Math.exp(-z*z/2),p=d*t*(.3193815+t*(-.3565638+t*(1.7814779+t*(-1.8212560+t*1.3302744))));return z>0?1-p:p;}
+function mcWin(pts1,pts2,n){var w=0,u1,u2,z,s1,s2;n=n||4000;for(var i=0;i<n;i++){u1=Math.random()+1e-9;u2=Math.random();z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);s1=Math.max(50,pts1+z*8);u1=Math.random()+1e-9;u2=Math.random();z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);s2=Math.max(50,pts2+z*8);if(s1>s2)w++;}return w/n;}
+
+// Historical seed win rates first round
+var SEED_WR = {1:.985,2:.929,3:.854,4:.793,5:.647,6:.632,7:.601,8:.488,9:.512,10:.399,11:.368,12:.353,13:.207,14:.146,15:.071,16:.015};
+// Historical upset rate by matchup (lower seed wins)
+var UPSET_RATE = {'12v5':.353,'11v6':.371,'10v7':.399,'9v8':.512,'13v4':.207,'14v3':.146,'15v2':.071,'16v1':.015};
+
+function upsetKey(highSeed,lowSeed){return lowSeed+'v'+highSeed;}
+
+function calcWinProb(t1, t2){
+  // t1/t2 = team data objects
+  var kp1=t1.kp, kp2=t2.kp, s1=t1.seed, s2=t2.seed;
+  var aem = kp1-kp2;
+  var kpProb = normalCDF(aem/10.5);
+  var sp1=SEED_WR[s1]||.5, sp2=SEED_WR[s2]||.5;
+  var seedProb = sp1/(sp1+sp2);
+  var mcP = mcWin(72+kp1*.5, 72+kp2*.5, 3000);
+  var p1 = .45*kpProb + .25*seedProb + .30*mcP;
+  return Math.min(.98,Math.max(.02,p1));
+}
+
+// ════════════════════════════════════════════════
+// TEAM DATABASE — 2026 Official Field
+// kp = KenPom AEM, seed, conf, record, style, note
+// ════════════════════════════════════════════════
+var TEAMS = {
+  // ── EAST ──────────────────────────────────────
+  Duke:         {name:'Duke',      kp:28.4,seed:1,conf:'ACC',   rec:'32-2', style:'Elite 2-way',
+    note:'Cameron Boozer (22.7/10.2, 41% 3P) is the NPOY frontrunner — may post the highest KenPom offensive rating in history. Nation\'s best defense. Caleb Foster (guard depth) out with foot injury. Still the overall #1 seed and the favorite.'},
+  Siena:        {name:'Siena',     kp:2.1, seed:16,conf:'MAAC', rec:'23-11',style:'Mid-major',
+    note:'MAAC auto-bid. No realistic path to upset here — Duke is historically dominant.'},
+  'Ohio State': {name:'Ohio State',kp:12.1,seed:8, conf:'Big Ten',rec:'21-12',style:'Balanced offense',
+    note:'Finished the regular season on a 3-game win streak. Seven wins over top-50 KenPom teams. Riley Kugel-caliber wing scoring. Strong 8-seed with Sweet 16 potential.'},
+  TCU:          {name:'TCU',       kp:11.4,seed:9, conf:'Big 12',rec:'22-11',style:'Fast-paced',
+    note:'Beat Florida at the Rady Invitational. Won vs Wisconsin, Iowa State, and Texas Tech. Went 6-7 through first 13 Big 12 games but won 9 of last 11. Dangerous 9-seed.'},
+  'St. Johns':  {name:"St. John's",kp:18.1,seed:5, conf:'Big East',rec:'28-6',style:'Elite defense',
+    note:'Rick Pitino system — top-15 defense nationally. Half-court offense has been the concern all year (scored just 66 pts vs Arkansas in 2025 tourney). If they can\'t score, watch out for Northern Iowa.'},
+  'Northern Iowa':{name:'N. Iowa', kp:9.2, seed:12,conf:'MVC',  rec:'23-12',style:'Disciplined',
+    note:'MVC\'s finest. 12-seeds upset 5-seeds 35% of the time. Northern Iowa is an experienced, well-coached team that controls possessions. St. John\'s offensive struggles make this the top 12-5 upset pick.'},
+  Kansas:       {name:'Kansas',    kp:18.6,seed:4, conf:'Big 12',rec:'23-10',style:'Defensive-minded',
+    note:'Bill Self\'s defense is top-15 nationally. However, Darryn Peterson\'s injury saga has decimated their offensive consistency — they scored just 47 points vs Houston in the Big 12 tourney. Vulnerable 4-seed.'},
+  'Cal Baptist': {name:'Cal Baptist',kp:8.9,seed:13,conf:'WAC', rec:'25-8', style:'Mid-major',
+    note:'Won the WAC on a missed alley-oop by Utah Valley. First tournament appearance. Limited upside vs Kansas.'},
+  Louisville:   {name:'Louisville',kp:16.4,seed:6, conf:'ACC',  rec:'23-10',style:'Defensive',
+    note:'KenPom says Louisville could be a title contender — they meet the offensive AND defensive thresholds for a championship run, making them a major sleeper. Watch their half of the South bracket.'},
+  'South Florida':{name:'S. Florida',kp:10.2,seed:11,conf:'AAC',rec:'25-8',style:'Aggressive',
+    note:'Won the American conf title game over Wichita State to punch their ticket. Bubble team that snuck in. Could pull an 11-seed upset but faces a tall order vs Louisville.'},
+  'Michigan State':{name:'Mich. State',kp:23.1,seed:3,conf:'Big Ten',rec:'25-7',style:'Tom Izzo March',
+    note:'Tom Izzo is 7-0 all-time against 14-seeds. Methodical, experienced, physical. Michigan State is dangerous entering the Sweet 16 and beyond. A perennial pick to make the Elite Eight.'},
+  'North Dakota St':{name:'N. Dak. St',kp:8.5,seed:14,conf:'Summit',rec:'27-7',style:'Mid-major',
+    note:'Summit League champs. No expected path against Izzo\'s squad.'},
+  UCLA:         {name:'UCLA',      kp:14.2,seed:7, conf:'Big Ten',rec:'23-11',style:'Balanced',
+    note:'Decent 7-seed. Has wins over some top-50 opponents. UCF matchup is genuinely even.'},
+  UCF:          {name:'UCF',       kp:10.8,seed:10,conf:'Big 12',rec:'21-11',style:'High-powered offense',
+    note:'First tourney since 2019 (nearly upset Duke that year by 1 pt). Seven wins over top-50 KenPom. Riley Kugel back from injury — shot 40% from 3. Legitimate upset threat vs UCLA.'},
+  UConn:        {name:'UConn',     kp:22.9,seed:2, conf:'Big East',rec:'29-5',style:'Championship DNA',
+    note:'Dan Hurley chasing his 3rd title in 4 years. Alex Karaban is the only returning champion. 18-game win streak earlier this season. Silas Demary Jr., Solo Ball providing veteran leadership. True contender.'},
+  Furman:       {name:'Furman',    kp:5.1, seed:15,conf:'SoCon', rec:'22-12',style:'Mid-major',
+    note:'SoCon auto-bid. Known for the 2023 upset of Virginia but not repeating that magic here.'},
+
+  // ── SOUTH ─────────────────────────────────────
+  Florida:      {name:'Florida',   kp:25.9,seed:1, conf:'SEC',  rec:'26-7', style:'Championship pedigree',
+    note:'Defending national champions. Todd Golden\'s squad took time to gel without the starting backcourt but closed the regular season with 11 straight wins. Thomas Haugh (17.2/6.1) is a lottery pick. Lost to Vanderbilt in SEC semis — brief scare, but still a strong 1-seed.'},
+  'Prairie View':{name:'Prairie View',kp:1.8,seed:16,conf:'SWAC',rec:'18-17',style:'Auto-bid',
+    note:'SWAC auto-qualifier. No realistic upset chance.'},
+  Clemson:      {name:'Clemson',   kp:12.4,seed:8, conf:'ACC',  rec:'24-10',style:'Defensive depth',
+    note:'Top-20 defense, forces turnovers on 19% of possessions. Won with depth over star power. McNeese beat them last year (2025) as a 12-seed — now they\'re a seeded team themselves. Well-coached.'},
+  Iowa:         {name:'Iowa',      kp:11.2,seed:9, conf:'Big Ten',rec:'21-12',style:'Offensive',
+    note:'Big Ten experience. Should be a competitive 8-9 game. Slight edge to Clemson but genuinely even.'},
+  Vanderbilt:   {name:'Vanderbilt',kp:19.2,seed:5, conf:'SEC',  rec:'26-8', style:'Star-driven',
+    note:'AJ Dybantsa is a projected top-3 NBA draft pick (19.2 PPG). Stunned #4 Florida in SEC semis. If Dybantsa gets hot, Vanderbilt could be this year\'s most dangerous 5-seed — but McNeese is a real threat.'},
+  McNeese:      {name:'McNeese',   kp:9.8, seed:12,conf:'Southland',rec:'28-5',style:'Press defense',
+    note:'🚨 TOP UPSET PICK. Nation\'s #1 steal rate, #1 longest defensive possessions. 10 straight wins entering tournament. Beat Clemson as a 12-seed LAST YEAR (2025). Transfer guards Larry Johnson (Creighton) and Tyshawn Archie (Tulsa) can score. If McNeese forces 20+ Vanderbilt turnovers, they win this.'},
+  Nebraska:     {name:'Nebraska',  kp:20.8,seed:4, conf:'Big Ten',rec:'26-6', style:'Fred Hoiberg',
+    note:'Nebraska basketball is real — second tourney appearance in 3 years under Hoiberg. Meets the Final Four KenPom thresholds on defense. Projected ceiling is the Sweet 16 but could exceed it.'},
+  Troy:         {name:'Troy',      kp:8.2, seed:13,conf:'Sun Belt',rec:'22-11',style:'Sun Belt',
+    note:'Sun Belt auto-bid. Solid record but limited path vs Nebraska.'},
+  'North Carolina':{name:'UNC',    kp:15.5,seed:6, conf:'ACC',  rec:'24-8', style:'ACC brand',
+    note:'UNC meets the KenPom offensive threshold for a title run but falls short defensively. Could make a Sweet 16 run but likely has a ceiling there.'},
+  VCU:          {name:'VCU',       kp:11.6,seed:11,conf:'A-10', rec:'27-7', style:'Havoc defense',
+    note:'Defending A-10 tournament champions. VCU\'s Havoc system — pressure defense and transition offense — is historically dangerous in March. 11-seeds are currently on a hot streak. Legit upset potential.'},
+  Illinois:     {name:'Illinois',  kp:21.4,seed:3, conf:'Big Ten',rec:'24-8', style:'#1 offense nationally',
+    note:'Illinois is first nationally in offensive efficiency (KenPom). Meets the offensive threshold for a title run. The concern: their defense (28th) falls short of the championship standard. Could flame out to a hot shooting team.'},
+  Penn:         {name:'Penn',      kp:6.8, seed:14,conf:'Ivy',   rec:'18-11',style:'Ivy League',
+    note:'Won the Ivy title when TJ Power dropped 44 points vs Yale. Cinderella-style story but limited matchup upside vs Illinois.'},
+  'Saint Marys':{name:"Saint Mary's",kp:14.8,seed:7,conf:'WCC', rec:'27-5', style:'Disciplined WCC',
+    note:'Well-coached under Randy Bennett. Grand Canyon beat them as a 12-seed in 2024. Reliable but limited ceiling. Texas A&M is a live dog here.'},
+  'Texas AM':   {name:'Texas A&M', kp:11.9,seed:10,conf:'SEC',  rec:'21-11',style:'Offensive glass',
+    note:'Leads the nation in offensive rebounding. High-tempo offense. If A&M controls the boards they can absolutely beat Saint Mary\'s.'},
+  Houston:      {name:'Houston',   kp:24.2,seed:2, conf:'Big 12',rec:'28-6', style:'Kelvin Sampson elite',
+    note:'Kelvin Sampson\'s squad. Dominated the Big 12 tournament run, beating Kansas 47-point effort out of them. Deep, physical, and well-coached. A real Final Four threat. Offense-heavy but KenPom rates them elite.'},
+  Idaho:        {name:'Idaho',     kp:4.2, seed:15,conf:'Big Sky',rec:'21-14',style:'Auto-bid',
+    note:'Big Sky auto-qualifier. No path vs Houston.'},
+
+  // ── WEST ──────────────────────────────────────
+  Arizona:      {name:'Arizona',   kp:26.8,seed:1, conf:'Big 12',rec:'32-2', style:'Championship depth',
+    note:'7 players averaging 8.7+ PPG. Won the Big 12 tournament. Jaden Bradley (Big 12 POY), Brayden Burries (16 PPG, 37% 3P), and Koa Peat (first-round pick) give them elite depth. Best defense in the Big 12. Legitimate national champion. KenPom #2 overall.'},
+  LIU:          {name:'LIU',       kp:2.8, seed:16,conf:'AE',    rec:'24-10',style:'Auto-bid',
+    note:'America East auto-bid. No path vs Arizona.'},
+  Villanova:    {name:'Villanova', kp:13.8,seed:8, conf:'Big East',rec:'24-8',style:'Big East toughness',
+    note:'Jay Wright coaching DNA is still in this program. Dangerous 8-seed with Sweet 16 upside. Utah State is a real test though.'},
+  'Utah State': {name:'Utah State',kp:11.8,seed:9, conf:'MWC',  rec:'28-6', style:'Mountain West',
+    note:'28-6 record, MWC powerhouse. Utah State has been a 12-seed a record FIVE times (1-4 vs 5s). As a 9-seed they\'re actually dangerous. Could topple Villanova.'},
+  Wisconsin:    {name:'Wisconsin', kp:17.4,seed:5, conf:'Big Ten',rec:'24-10',style:'Big Ten grind',
+    note:'Offensively strong by KenPom (top-20 O). Defensively inconsistent enough to be vulnerable. High Point is a legitimate 12-seed threat — Big South champs with a 30-4 record.'},
+  'High Point':  {name:'High Point',kp:9.1, seed:12,conf:'Big South',rec:'30-4',style:'High-tempo',
+    note:'Only 4 losses, big South auto-bid. Per KenPom analytics article — High Point is actually in the top-100 in all four factors, making them a uniquely dangerous 12-seed. The model rates this as the second-best 12-5 upset chance this year.'},
+  Arkansas:     {name:'Arkansas',  kp:16.8,seed:4, conf:'SEC',  rec:'26-8', style:'Top-5 offense nationally',
+    note:'Won the 2026 SEC tournament. John Calipari\'s offense is top-5 nationally (KenPom). Meets the offensive championship threshold but falls short on defense (46th). Dangerous but not a title contender.'},
+  Hawaii:       {name:"Hawai'i",   kp:8.4, seed:13,conf:'Big West',rec:'24-8',style:'Big West',
+    note:'Big West auto-bid. Not a realistic upset vs Arkansas.'},
+  BYU:          {name:'BYU',       kp:15.1,seed:6, conf:'Big 12',rec:'23-11',style:'Perimeter-heavy',
+    note:'BYU was a terrifying 6-seed last year (2025) and upset Wisconsin in the Sweet 16. Has the offensive firepower to make another run. Texas (First Four winner) or NC State awaits.'},
+  Texas:        {name:'Texas',     kp:12.8,seed:11,conf:'Big 12',rec:'18-14',style:'First Four',
+    note:'In the First Four vs NC State. Lost 4 of last 5 in regular season before clawing back. If they win the First Four, they\'re a dangerous 11-seed vs BYU.'},
+  Gonzaga:      {name:'Gonzaga',   kp:20.1,seed:3, conf:'WCC',  rec:'30-3', style:'WCC powerhouse',
+    note:'Mark Few\'s program. 30 wins. KenPom shows they fall slightly short of the offensive threshold for a title (unlike the 2021 unbeaten squad), but Gonzaga always performs in March. Should cruise to the Sweet 16.'},
+  'Kennesaw State':{name:'Kennesaw St',kp:6.2,seed:14,conf:'ASUN',rec:'21-13',style:'ASUN',
+    note:'ASUN auto-bid. No realistic upset path vs Gonzaga.'},
+  'Miami FL':   {name:'Miami FL',  kp:11.4,seed:7, conf:'ACC',  rec:'25-8', style:'ACC',
+    note:'Consistent ACC program. Should handle Missouri but watch for a 10-seed upset.'},
+  Missouri:     {name:'Missouri',  kp:10.6,seed:10,conf:'SEC',  rec:'20-12',style:'Inconsistent',
+    note:'Beat Kentucky and Florida in early January then lost 4 of 6. Inconsistency is the story. Could upset Miami FL on a good day.'},
+  Purdue:       {name:'Purdue',    kp:21.4,seed:2, conf:'Big Ten',rec:'27-8', style:'Post-dominant',
+    note:'Won the Big Ten tournament, upsetting #3 Michigan in the final 80-72. Second in KenPom offensive efficiency nationally. Falls short of the defensive threshold for a championship (37th on D) but is a dangerous Final Four threat regardless.'},
+  Queens:       {name:'Queens',    kp:7.9, seed:15,conf:'ASUN', rec:'21-13',style:'Auto-bid',
+    note:'ASUN entry. No path vs Purdue.'},
+
+  // ── MIDWEST ───────────────────────────────────
+  Michigan:     {name:'Michigan',  kp:27.1,seed:1, conf:'Big Ten',rec:'31-3', style:'Size + talent',
+    note:'Dusty May\'s massive lineup — Yaxel Lendeborg (6-9 lottery pick, 14.3/7.3), Morez Johnson Jr., and 7-3 Aday Mara form the biggest frontcourt in America. Lost Big Ten final to Purdue but is still the #1 seed. KenPom: top-5 offense AND defense. National title favorite.'},
+  UMBC:         {name:'UMBC',      kp:3.1, seed:16,conf:'AE',    rec:'24-8', style:'Auto-bid',
+    note:'America East auto-bid. Michigan is a historically dominant matchup.'},
+  Georgia:      {name:'Georgia',   kp:13.1,seed:8, conf:'SEC',   rec:'22-10',style:'SEC physicality',
+    note:'SEC battle-tested. Good 8-9 game with Saint Louis. Defensive-minded.'},
+  'Saint Louis': {name:'Saint Louis',kp:12.4,seed:9,conf:'A-10', rec:'28-5', style:'A-10 leader',
+    note:'28 wins from the A-10. Well-coached, disciplined. Meets the offensive threshold per KenPom analysis for a second-weekend run.'},
+  'Texas Tech':  {name:'Texas Tech',kp:17.1,seed:5, conf:'Big 12',rec:'22-10',style:'Defensive identity',
+    note:'Christian Anderson back healthy for the tournament — key news. Defensive identity program. But Akron (29-5, MAC champs) is a well-documented 12-seed threat at 35% upset rate historically.'},
+  Akron:        {name:'Akron',     kp:9.6, seed:12,conf:'MAC',   rec:'29-5', style:'MAC powerhouse',
+    note:'29-5 record, one of the best in the field by wins. KenPom rates Akron as meeting the offensive threshold for a Sweet 16 run. With Christian Anderson potentially limited and Texas Tech\'s defensive style playing slower, Akron could steal this. Third-best 12-5 upset scenario.'},
+  Alabama:      {name:'Alabama',   kp:18.9,seed:4, conf:'SEC',   rec:'23-9', style:'Nate Oats fast pace',
+    note:'Labaron Philon Jr. (21.5 PPG, 4.8 APG, 39% 3P) is a projected lottery pick. Scored 90+ points vs 8 top-50 KenPom teams. Won 9 of last 10 to close the season. Dangerous deep-run threat. KenPom: top-5 offense nationally.'},
+  Hofstra:      {name:'Hofstra',   kp:8.1, seed:13,conf:'CAA',   rec:'24-10',style:'CAA',
+    note:'CAA auto-bid. Solid program but Hofstra vs Alabama is a heavy favorite matchup.'},
+  Tennessee:    {name:'Tennessee', kp:15.8,seed:6, conf:'SEC',   rec:'22-11',style:'Physical',
+    note:'SEC physicality. Solid 6-seed but Miami (OH) coming in at 31-1 with historic season is the most notable First Four seed story.'},
+  'Miami OH':   {name:'Miami (OH)',kp:13.2,seed:11,conf:'MAC',   rec:'31-1', style:'Historic season',
+    note:'31 wins and 1 loss entering the tournament — one of the best records in college basketball. Lost only to UMass in the MAC tournament. Will Wade\'s first year at NC State is also interesting. Mac-powered upset potential is REAL vs Tennessee.'},
+  Virginia:     {name:'Virginia',  kp:20.3,seed:3, conf:'ACC',   rec:'29-5', style:'Pack line defense',
+    note:'Tony Bennett\'s system. 29-5. Elite defense. Meets the KenPom championship thresholds on defense (top-25 nationally). Could make a Final Four. Watch for a dangerous matchup vs Wright State in round 1, then potential Sweet 16 run.'},
+  'Wright State':{name:'Wright State',kp:7.4,seed:14,conf:'Horizon',rec:'23-11',style:'Horizon',
+    note:'Horizon League auto-bid. No path vs Virginia\'s pack line.'},
+  Kentucky:     {name:'Kentucky',  kp:13.5,seed:7, conf:'SEC',   rec:'21-13',style:'Calipari DNA',
+    note:'John Calipari still knows how to recruit and prepare for March. 7-seed Kentucky is dangerous — they always are. Santa Clara awaits.'},
+  'Santa Clara': {name:'Santa Clara',kp:10.1,seed:10,conf:'WCC', rec:'26-8', style:'WCC',
+    note:'WCC talent, disciplined offense. Beat McNeese in non-conf play. Could trouble Kentucky.'},
+  'Iowa State':  {name:'Iowa State',kp:23.8,seed:2, conf:'Big 12',rec:'27-7', style:'Complete team',
+    note:'Lost Big 12 semis to Arizona. But Iowa State meets BOTH offensive and defensive championship thresholds per KenPom — one of only a handful of teams in the field to do so. Massive Final Four threat. AJ Dybantsa watch-caliber player.'},
+  'Tennessee State':{name:'Tenn. State',kp:4.8,seed:15,conf:'OVC',rec:'23-9',style:'Auto-bid',
+    note:'OVC auto-qualifier. No path vs Iowa State.'},
+};
+
+// ════════════════════════════════════════════════
+// BRACKET STRUCTURE — OFFICIAL 2026 MATCHUPS
+// ════════════════════════════════════════════════
+var REGIONS = {
+  east: {
+    name:'East', color:'east', seed1:'Duke',
+    r64:[
+      ['Duke','Siena'],['Ohio State','TCU'],
+      ['St. Johns','Northern Iowa'],['Kansas','Cal Baptist'],
+      ['Louisville','South Florida'],['Michigan State','North Dakota St'],
+      ['UCLA','UCF'],['UConn','Furman']
+    ]
+  },
+  south: {
+    name:'South', color:'south', seed1:'Florida',
+    r64:[
+      ['Florida','Prairie View'],['Clemson','Iowa'],
+      ['Vanderbilt','McNeese'],['Nebraska','Troy'],
+      ['North Carolina','VCU'],['Illinois','Penn'],
+      ['Saint Marys','Texas AM'],['Houston','Idaho']
+    ]
+  },
+  west: {
+    name:'West', color:'west', seed1:'Arizona',
+    r64:[
+      ['Arizona','LIU'],['Villanova','Utah State'],
+      ['Wisconsin','High Point'],['Arkansas','Hawaii'],
+      ['BYU','Texas'],['Gonzaga','Kennesaw State'],
+      ['Miami FL','Missouri'],['Purdue','Queens']
+    ]
+  },
+  midwest: {
+    name:'Midwest', color:'midwest', seed1:'Michigan',
+    r64:[
+      ['Michigan','UMBC'],['Georgia','Saint Louis'],
+      ['Texas Tech','Akron'],['Alabama','Hofstra'],
+      ['Tennessee','Miami OH'],['Virginia','Wright State'],
+      ['Kentucky','Santa Clara'],['Iowa State','Tennessee State']
+    ]
+  }
+};
+
+// ════════════════════════════════════════════════
+// PICKS STATE
+// picks[region][round][idx] = teamKey
+// rounds: 0=R64, 1=R32, 2=S16, 3=E8
+// finalFour: {eastSouth, westMidwest}
+// champion: key
+// ════════════════════════════════════════════════
+var picks = {};
+var finalFour = {eastSouth:null, westMidwest:null};
+var champion = null;
+var currentRound = 'r64';
+
+function initPicks(){
+  ['east','south','west','midwest'].forEach(function(r){
+    picks[r] = [new Array(8).fill(null),new Array(4).fill(null),new Array(2).fill(null),new Array(1).fill(null)];
+  });
+}
+initPicks();
+
+function roundIndex(r){ return {r64:0,r32:1,s16:2,e8:3}[r]; }
+
+function getTeamInSlot(region,round,slot){
+  if(round===0){ var p=Math.floor(slot/2),pos=slot%2; return REGIONS[region].r64[p][pos]; }
+  return picks[region][round-1][slot]||null;
+}
+function getMatchup(region,round,m){
+  return [getTeamInSlot(region,round,m*2), getTeamInSlot(region,round,m*2+1)];
+}
+function pickTeam(region,round,m,key){
+  picks[region][round][m]=key;
+  clearDownstream(region,round,m);
+  renderAll();
+}
+function clearDownstream(region,round,m){
+  var nm=Math.floor(m/2);
+  if(round<3){ picks[region][round+1][nm]=null; clearDownstream(region,round+1,nm); }
+  else { finalFour.eastSouth=null; finalFour.westMidwest=null; champion=null; }
+}
+function pickFF(slot,key){
+  finalFour[slot]=key;
+  champion=null;
+  renderAll();
+}
+function pickChamp(key){ champion=key; renderAll(); }
+
+function autoPickAll(){
+  ['east','south','west','midwest'].forEach(function(region){
+    for(var rd=0;rd<4;rd++){
+      var n=[8,4,2,1][rd];
+      for(var m=0;m<n;m++){
+        var mt=getMatchup(region,rd,m);
+        if(mt[0]&&mt[1]&&!picks[region][rd][m]){
+          var p=calcWinProb(TEAMS[mt[0]],TEAMS[mt[1]]);
+          picks[region][rd][m]= p>=.5 ? mt[0] : mt[1];
+        }
+      }
+    }
+  });
+  var ew=picks.east[3][0], sw=picks.south[3][0], ww=picks.west[3][0], mw=picks.midwest[3][0];
+  if(ew&&sw){ var p=calcWinProb(TEAMS[ew],TEAMS[sw]); finalFour.eastSouth=p>=.5?ew:sw; }
+  if(ww&&mw){ var p=calcWinProb(TEAMS[ww],TEAMS[mw]); finalFour.westMidwest=p>=.5?ww:mw; }
+  if(finalFour.eastSouth&&finalFour.westMidwest){
+    var p=calcWinProb(TEAMS[finalFour.eastSouth],TEAMS[finalFour.westMidwest]);
+    champion=p>=.5?finalFour.eastSouth:finalFour.westMidwest;
+  }
+  renderAll();
+  showView('ff');
+}
+
+// ════════════════════════════════════════════════
+// UPSET CLASSIFICATION
+// ════════════════════════════════════════════════
+function upsetLevel(t1key, t2key){
+  // returns: null=normal, 'watch'=worth considering, 'alert'=strong upset pick
+  var t1=TEAMS[t1key], t2=TEAMS[t2key];
+  if(!t1||!t2) return null;
+  var hi=t1.seed<t2.seed?t1:t2; // lower number = better seed
+  var lo=t1.seed>t2.seed?t1:t2;
+  var gap=lo.seed-hi.seed;
+  var ukey=lo.seed+'v'+hi.seed;
+  var histRate=UPSET_RATE[ukey]||0;
+  var kpGap=Math.abs(t1.kp-t2.kp);
+
+  // Strong upset alert: known upset-prone matchup + underdog has KenPom close
+  if((lo.seed===12&&hi.seed===5)&&kpGap<12) return 'alert';
+  if((lo.seed===11&&hi.seed===6)&&kpGap<10) return 'alert';
+  if((lo.seed===9||lo.seed===8)&&hi.seed!==(lo.seed-1)&&kpGap<5) return 'alert';
+  if(histRate>0.25&&kpGap<10) return 'watch';
+  if(histRate>0.15&&kpGap<7) return 'watch';
+  return null;
+}
+
+// ════════════════════════════════════════════════
+// RENDER MATCHUP CARD
+// ════════════════════════════════════════════════
+function pct(v,dec){ dec=dec||0; return (v*100).toFixed(dec)+'%'; }
+
+function matchupCardHTML(region, round, m){
+  var mt=getMatchup(region,round,m);
+  var t1k=mt[0], t2k=mt[1];
+  if(!t1k&&!t2k) return '';
+  if(!t1k||!t2k){
+    return '<div class="matchup-card"><div style="padding:14px 16px;color:var(--dim);font-size:11px">Awaiting round '+(round)+' results...</div></div>';
+  }
+  var t1=TEAMS[t1k], t2=TEAMS[t2k];
+  var picked=picks[region][round][m];
+  var prob1=calcWinProb(t1,t2);
+  var prob2=1-prob1;
+  var modelPick=prob1>=prob2?t1k:t2k;
+  var ul=upsetLevel(t1k,t2k);
+
+  // Who is favorite vs underdog
+  var fav=t1.seed<=t2.seed?t1k:t2k;
+  var dog=t1.seed<=t2.seed?t2k:t1k;
+  var favProb=fav===t1k?prob1:prob2;
+  var dogProb=1-favProb;
+
+  // Upset history
+  var hiSeed=Math.min(t1.seed,t2.seed), loSeed=Math.max(t1.seed,t2.seed);
+  var ukey=loSeed+'v'+hiSeed;
+  var histUpset=UPSET_RATE[ukey];
+
+  var upsetTeam = t1.seed>t2.seed?t1k:t2k; // the lower seed (potential upset team)
+  var upsetTeamData = TEAMS[upsetTeam];
+  var favTeamData = TEAMS[fav];
+
+  // Card class
+  var cardCls='matchup-card';
+  if(ul==='alert') cardCls+=' upset-alert';
+  else if(ul==='watch') cardCls+=' watch-game';
+
+  function teamSideHTML(tk, prob, side){
+    var td=TEAMS[tk];
+    if(!td) return '<div class="team-side"></div>';
+    var isPicked=picked===tk;
+    var isLoser=picked&&!isPicked;
+    var isModelPick=modelPick===tk;
+    var isUpsetPick=isPicked&&td.seed>TEAMS[picked===t1k?t2k:t1k].seed;
+    var cls='team-side';
+    if(isPicked&&isUpsetPick) cls+=' picked-underdog';
+    else if(isPicked) cls+=' picked';
+    if(isLoser) cls+=' losing';
+    var pctColor=prob>=.6?'fav':prob<.4?'dog':'fav';
+
+    return '<div class="'+cls+'" onclick="pickTeam(\''+region+'\','+round+','+m+',\''+tk+'\')">'
+      +'<div class="team-top">'
+      +'<span class="seed-num s'+td.seed+'">'+td.seed+'</span>'
+      +'<div><div class="team-name-big">'+td.name+'</div>'
+      +'<div class="team-conf">'+td.conf+' · <span class="team-record">'+td.rec+'</span></div></div>'
+      +'</div>'
+      +'<div class="win-pct-row">'
+      +'<div><div class="win-pct-num '+pctColor+'">'+pct(prob,0)+'</div><div class="win-pct-lbl">Win Prob</div></div>'
+      +'<div style="margin-left:10px">'
+      +(isModelPick&&!isPicked?'<div class="proj-badge proj-win">▲ Model Pick</div>':'')
+      +(isPicked&&!isUpsetPick?'<div class="proj-badge proj-win">✓ Your Pick</div>':'')
+      +(isPicked&&isUpsetPick?'<div class="proj-badge proj-upset-win">⚡ Upset Pick</div>':'')
+      +'</div></div>'
+      +'</div>';
+  }
+
+  // Analysis stats
+  var aem1=t1.kp, aem2=t2.kp;
+  var kpGap=Math.abs(aem1-aem2);
+  var note = ul==='alert' ? upsetTeamData.note : favTeamData.note;
+
+  var statsHTML='<div class="analysis-grid">'
+    +'<div class="analysis-stat"><div class="as-label">KenPom AEM</div><div class="as-value highlight">'+(aem1>0?'+':'')+aem1.toFixed(1)+' / '+(aem2>0?'+':'')+aem2.toFixed(1)+'</div></div>'
+    +'<div class="analysis-stat"><div class="as-label">KP Gap</div><div class="as-value '+(kpGap>15?'highlight':kpGap>8?'gold':'red')+'">'+kpGap.toFixed(1)+' pts</div></div>'
+    +(histUpset!==undefined?'<div class="analysis-stat"><div class="as-label">Historical Upset Rate</div><div class="as-value '+(histUpset>.3?'red':histUpset>.2?'gold':'green')+'">'+pct(histUpset)+' ('+loSeed+'-over-'+hiSeed+')</div></div>':'<div class="analysis-stat"></div>')
+    +'<div class="analysis-stat"><div class="as-label">Model Confidence</div><div class="as-value '+(Math.abs(prob1-.5)>.25?'green':Math.abs(prob1-.5)>.1?'gold':'red')+'">'+( Math.abs(prob1-.5)>.25?'HIGH':Math.abs(prob1-.5)>.1?'MEDIUM':'LOW')+'</div></div>'
+    +'</div>';
+
+  // Upset alert box
+  var upsetBox='';
+  if(ul==='alert'){
+    var upsetHistDesc='';
+    if(loSeed===12) upsetHistDesc='12-seeds upset 5-seeds 35% of the time — at least one happens nearly every year (33 of last 39 tournaments).';
+    else if(loSeed===11) upsetHistDesc='11-seeds are on a hot streak recently and upset 6-seeds 37% of the time historically.';
+    else if(loSeed===9||loSeed===8) upsetHistDesc='8-9 seed games are essentially coin flips — 9-seeds have won more total games than 8-seeds all time.';
+    upsetBox='<div class="upset-alert-box">'
+      +'<div class="upset-icon">🚨</div>'
+      +'<div class="upset-text"><strong>Upset Alert: '+upsetTeamData.name+'</strong><br>'
+      +upsetHistDesc+'<br>'+upsetTeamData.note
+      +'</div></div>';
+  } else if(ul==='watch'){
+    upsetBox='<div class="upset-alert-box" style="background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.2)">'
+      +'<div class="upset-icon">👀</div>'
+      +'<div class="upset-text" style="color:#fde68a"><strong>Watch Game: '+upsetTeamData.name+'</strong><br>'
+      +upsetTeamData.note
+      +'</div></div>';
+  }
+
+  // Scout notes for favorite
+  var scoutNote=(ul!=='alert')?'<div class="scout-note">'+favTeamData.note+'</div>':'';
+
+  // Pick buttons
+  var btn1cls='pick-btn'+(picked===t1k?(t1.seed>t2.seed?' picked-upset':' picked'):'')+(modelPick===t1k?' model-rec':'');
+  var btn2cls='pick-btn'+(picked===t2k?(t2.seed>t1.seed?' picked-upset':' picked'):'')+(modelPick===t2k?' model-rec':'');
+
+  var roundName=['First Round','Round of 32','Sweet 16','Elite Eight'][round];
+
+  return '<div class="'+cardCls+'">'
+    +'<div class="matchup-inner">'
+    +teamSideHTML(t1k,prob1,'left')
+    +'<div class="matchup-mid">'
+    +'<div class="mid-round">'+roundName+'</div>'
+    +'<div class="prob-bar-vert"><div class="pb-top" style="flex:'+prob1+'"></div><div class="pb-bot" style="flex:'+prob2+'"></div></div>'
+    +'<div class="mid-vs">VS</div>'
+    +'</div>'
+    +teamSideHTML(t2k,prob2,'right')
+    +'</div>'
+    +'<div class="analysis-panel">'
+    +statsHTML
+    +scoutNote
+    +upsetBox
+    +'<div class="pick-row">'
+    +'<button class="'+btn1cls+'" onclick="pickTeam(\''+region+'\','+round+','+m+',\''+t1k+'\')" title="Pick '+t1.name+'">'+t1.name+(modelPick===t1k?' ★':'')+'</button>'
+    +'<button class="'+btn2cls+'" onclick="pickTeam(\''+region+'\','+round+','+m+',\''+t2k+'\')" title="Pick '+t2.name+'">'+t2.name+(modelPick===t2k?' ★':'')+'</button>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+// ════════════════════════════════════════════════
+// REGION SECTION
+// ════════════════════════════════════════════════
+function regionHTML(rkey, round){
+  var rdata=REGIONS[rkey];
+  var n=[8,4,2,1][round];
+  var projWinner=picks[rkey][3][0];
+  var projWinnerName=projWinner?(TEAMS[projWinner]?TEAMS[projWinner].name:projWinner):'—';
+
+  var header='<div class="region-header">'
+    +'<div class="region-title '+rdata.color+'">'+rdata.name+' Region</div>'
+    +'<div class="region-meta">1-seed: '+(TEAMS[rdata.seed1]?TEAMS[rdata.seed1].name:rdata.seed1)+'</div>'
+    +(projWinner?'<div class="region-verdict"><div class="region-verdict-title">Your E8 Pick</div><div class="region-winner">'+projWinnerName+'</div></div>':'')
+    +'</div>';
+
+  var cards='';
+  for(var m=0;m<n;m++) cards+=matchupCardHTML(rkey,round,m);
+
+  return '<div class="region-section" id="region-'+rkey+'">'+header+cards+'</div>';
+}
+
+// ════════════════════════════════════════════════
+// MAIN RENDER
+// ════════════════════════════════════════════════
+function renderGuide(){
+  var rd=roundIndex(currentRound);
+  var container=document.getElementById('matchupContainer');
+  var html='';
+  ['east','south','west','midwest'].forEach(function(r){ html+=regionHTML(r,rd); });
+  container.innerHTML=html;
+}
+
+function renderFF(){
+  var ew=picks.east[3][0], sw=picks.south[3][0];
+  var ww=picks.west[3][0], mw=picks.midwest[3][0];
+
+  function ffCardHTML(slot, t1k, t2k, title){
+    var p1=t1k&&t2k?calcWinProb(TEAMS[t1k],TEAMS[t2k]):0.5;
+    var p2=1-p1;
+    var picked=finalFour[slot];
+    function row(tk, prob){
+      if(!tk){ return '<div class="ff-tbd">Awaiting Elite Eight picks...</div>'; }
+      var td=TEAMS[tk];
+      var isPicked=picked===tk;
+      return '<div class="ff-team-row'+(isPicked?' picked':'')+'" onclick="pickFF(\''+slot+'\',\''+tk+'\')">'
+        +'<span class="seed-num s'+(td?td.seed:'-')+'">'+(td?td.seed:'-')+'</span>'
+        +'<div><div class="ff-team-name">'+(td?td.name:tk)+'</div><div class="ff-team-seed">'+(td?td.conf+' · '+td.rec:'')+'</div></div>'
+        +'<div class="ff-team-prob">'+(t1k&&t2k?pct(prob,0):'—')+'</div>'
+        +(isPicked?'<span style="color:var(--gold);font-size:14px">★</span>':'')
+        +'</div>';
+    }
+    return '<div class="ff-card"><div class="ff-card-title">'+title+'</div>'+row(t1k,p1)+row(t2k,p2)+'</div>';
+  }
+
+  document.getElementById('ffGrid').innerHTML=
+    ffCardHTML('eastSouth',ew,sw,'East vs South — Final Four')
+    +ffCardHTML('westMidwest',ww,mw,'West vs Midwest — Final Four');
+
+  // Championship
+  var c1=finalFour.eastSouth, c2=finalFour.westMidwest;
+  var champCard=document.getElementById('champCard');
+  if(!c1&&!c2){
+    champCard.querySelector('#champName').textContent='Pick your Final Four';
+    champCard.querySelector('#champDetail').textContent='Fill out the Elite Eight to unlock';
+    return;
+  }
+  if(champion){
+    var ct=TEAMS[champion];
+    champCard.querySelector('#champName').textContent=(ct?ct.name:champion);
+    champCard.querySelector('#champDetail').textContent='2026 National Champion · '+(ct?ct.conf+' · '+ct.rec:'');
+  } else {
+    var cp=c1&&c2?calcWinProb(TEAMS[c1],TEAMS[c2]):0.5;
+    var n1=c1?(TEAMS[c1]?TEAMS[c1].name:c1):'TBD';
+    var n2=c2?(TEAMS[c2]?TEAMS[c2].name:c2):'TBD';
+    champCard.querySelector('#champName').textContent=n1+' vs '+n2;
+    champCard.querySelector('#champDetail').innerHTML='Click to pick your champion: '
+      +(c1?'<span onclick="pickChamp(\''+c1+'\')" style="cursor:pointer;color:var(--orange2);text-decoration:underline">'+n1+'</span>':n1)
+      +' or '
+      +(c2?'<span onclick="pickChamp(\''+c2+'\')" style="cursor:pointer;color:#93c5fd;text-decoration:underline">'+n2+'</span>':n2);
+  }
+}
+
+function renderSummary(){
+  // Count stats
+  var total=0,upsets=0,agree=0,allPicks=0;
+  var rows='';
+  var rdNames=['First Round','Round of 32','Sweet 16','Elite Eight'];
+  var rdCls=['rb-r64','rb-r32','rb-s16','rb-e8'];
+
+  ['east','south','west','midwest'].forEach(function(region){
+    var rname=REGIONS[region].name;
+    for(var rd=0;rd<4;rd++){
+      for(var m=0;m<picks[region][rd].length;m++){
+        var winner=picks[region][rd][m];
+        if(!winner) continue;
+        total++;
+        var mt=getMatchup(region,rd,m);
+        var loser=mt[0]===winner?mt[1]:mt[0];
+        var wt=TEAMS[winner],lt=loser?TEAMS[loser]:null;
+        var p1=mt[0]&&mt[1]?calcWinProb(TEAMS[mt[0]],TEAMS[mt[1]]):0.5;
+        var myProb=mt[0]===winner?p1:1-p1;
+        var isUpset=lt&&wt&&wt.seed>lt.seed;
+        if(isUpset) upsets++;
+        var modelFav=p1>=.5?mt[0]:mt[1];
+        if(winner===modelFav) agree++;
+        allPicks++;
+        rows+='<tr>'
+          +'<td><span class="rb '+rdCls[rd]+'">'+rdNames[rd]+'</span></td>'
+          +'<td><strong>#'+(wt?wt.seed:'-')+' '+(wt?wt.name:winner)+'</strong>'+(isUpset?'<span class="upset-pill">UPSET</span>':'')+'</td>'
+          +'<td style="color:var(--muted)">'+(lt?'#'+lt.seed+' '+lt.name:(loser||'—'))+'</td>'
+          +'<td style="color:'+(myProb>.6?'var(--green)':myProb<.4?'var(--red)':'var(--muted)')+'">'+pct(myProb,0)+'</td>'
+          +'<td style="color:var(--dim)">'+rname+'</td>'
+          +'</tr>';
+      }
+    }
+  });
+
+  // FF + champ
+  [{slot:'eastSouth',label:'East/South FF'},{slot:'westMidwest',label:'West/Midwest FF'}].forEach(function(ff){
+    var w=finalFour[ff.slot];
+    if(!w) return;
+    var wt=TEAMS[w];
+    total++;
+    rows+='<tr><td><span class="rb rb-ff">Final Four</span></td><td><strong>#'+(wt?wt.seed:'-')+' '+(wt?wt.name:w)+'</strong></td><td style="color:var(--muted)">'+ff.label+'</td><td>—</td><td style="color:var(--dim)">Finals</td></tr>';
+  });
+  if(champion){
+    var ct=TEAMS[champion];total++;
+    rows+='<tr style="background:rgba(251,191,36,.04)"><td><span class="rb rb-champ">🏆 Champion</span></td><td><strong style="color:var(--gold)">#'+(ct?ct.seed:'-')+' '+(ct?ct.name:champion)+'</strong></td><td style="color:var(--muted)">2026 National Champion</td><td>—</td><td style="color:var(--dim)">Indianapolis</td></tr>';
+  }
+
+  var champDisplay=champion?(TEAMS[champion]?TEAMS[champion].name:champion):'—';
+  document.getElementById('summaryCards').innerHTML=
+    '<div class="sum-card"><div class="sum-title">Picks Made</div><div class="sum-big" style="color:var(--orange2)">'+total+'</div><div class="sum-sub">of 63 total games</div></div>'
+    +'<div class="sum-card"><div class="sum-title">Champion Pick</div><div class="sum-big" style="color:var(--gold);font-size:'+(champDisplay.length>8?'24px':'38px')+'">'+champDisplay+'</div></div>'
+    +'<div class="sum-card"><div class="sum-title">Upsets Picked</div><div class="sum-big" style="color:var(--red)">'+upsets+'</div><div class="sum-sub">lower seed winning</div></div>'
+    +'<div class="sum-card"><div class="sum-title">Model Agreement</div><div class="sum-big" style="color:var(--blue)">'+(allPicks>0?Math.round(agree/allPicks*100):0)+'%</div><div class="sum-sub">picks match model favorite</div></div>';
+  document.getElementById('picksBody').innerHTML=rows||'<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:20px">No picks made yet</td></tr>';
+}
+
+function renderAll(){
+  renderGuide();
+  renderFF();
+  renderSummary();
+}
+
+// ════════════════════════════════════════════════
+// VIEW + FILTER SWITCHING
+// ════════════════════════════════════════════════
+function showView(v){
+  ['guide','ff','summary'].forEach(function(id){ document.getElementById('view-'+id).className='view'+(id===v?' active':''); });
+  ['guide','ff','summary'].forEach(function(id){ document.getElementById('vtab-'+id).className='btn btn-ghost'+(id===v?' active':''); });
+  if(v==='summary') renderSummary();
+  if(v==='ff') renderFF();
+}
+
+function filterRound(r,btn){
+  currentRound=r;
+  document.querySelectorAll('.rtab').forEach(function(b){b.className='rtab';});
+  btn.className='rtab active';
+  renderGuide();
+}
+
+// Init
+renderAll();
+</script>
+</body>
+</html>
